@@ -148,6 +148,12 @@ class CourseRepository(private val context: Context) {
     }
 
     fun calculateGradePoint(score: Int): Float {
+        // CQMU uses formula: (score / 10) - 5, with floor at 0
+        if (BuildConfig.SCHOOL_ID == "cqmu") {
+            val gp = (score.toFloat() / 10f) - 5f
+            return if (gp > 0f) gp else 0f
+        }
+        // SWU uses lookup table
         val ranges = getGradePointRanges()
         for (range in ranges) {
             if (score >= range.min && score <= range.max) {
