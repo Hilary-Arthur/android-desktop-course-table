@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -30,7 +31,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.coursetable.data.CourseRepository
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -61,29 +64,37 @@ fun SettingsScreen(
     ) {
         Text(
             text = "设置",
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.headlineLarge.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 28.sp
+            ),
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
         // Import course card
         Card(
             modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(20.dp)) {
                 Text(
                     text = "导入课表",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp
+                    ),
+                    modifier = Modifier.padding(bottom = 10.dp)
                 )
 
                 Text(
                     text = if (hasImported) "已导入自定义课表，再次导入将覆盖当前课表" else "粘贴课表 JSON 文本来导入你的课程",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 12.dp)
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -113,22 +124,27 @@ fun SettingsScreen(
         // Skill guide card
         Card(
             modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(20.dp)) {
                 Text(
                     text = "使用AI转换课表",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp
+                    ),
+                    modifier = Modifier.padding(bottom = 10.dp)
                 )
 
                 Text(
                     text = "如果你的课表是截图或文本格式，可以使用AI（如ChatGPT、Claude等）自动转换为JSON格式",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 12.dp)
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 Button(
@@ -145,15 +161,20 @@ fun SettingsScreen(
         // Semester start date card
         Card(
             modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(20.dp)) {
                 Text(
                     text = "学期起始日期",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp
+                    ),
+                    modifier = Modifier.padding(bottom = 10.dp)
                 )
 
                 Text(
@@ -162,9 +183,9 @@ fun SettingsScreen(
                     } else {
                         "未设置，课程表将从第1周开始显示"
                     },
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 12.dp)
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -190,20 +211,25 @@ fun SettingsScreen(
         // School info card
         Card(
             modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(20.dp)) {
                 Text(
                     text = "学校信息",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp
+                    ),
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
                 Text(
                     text = "当前版本：${repository.getSchoolName()}",
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
