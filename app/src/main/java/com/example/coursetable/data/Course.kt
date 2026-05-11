@@ -1,8 +1,7 @@
 package com.example.coursetable.data
 
-import com.google.gson.annotations.SerializedName
-
 data class Course(
+    val id: Long = System.currentTimeMillis(),
     val name: String,
     val day: Int,
     val start: Int,

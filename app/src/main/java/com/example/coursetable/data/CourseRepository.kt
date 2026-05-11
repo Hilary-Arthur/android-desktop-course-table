@@ -90,6 +90,31 @@ class CourseRepository(private val context: Context) {
         return loadCourses().map { it.name }.distinct().sorted()
     }
 
+    fun addCourse(course: Course) {
+        val courses = loadCourses().toMutableList()
+        courses.add(course)
+        saveAllCourses(courses)
+    }
+
+    fun editCourse(course: Course) {
+        val courses = loadCourses().toMutableList()
+        val index = courses.indexOfFirst { it.id == course.id }
+        if (index != -1) {
+            courses[index] = course
+            saveAllCourses(courses)
+        }
+    }
+
+    fun deleteCourse(id: Long) {
+        val courses = loadCourses().filter { it.id != id }
+        saveAllCourses(courses)
+    }
+
+    private fun saveAllCourses(courses: List<Course>) {
+        allCourses = courses
+        prefs.edit().putString(KEY_IMPORTED_COURSES, gson.toJson(courses)).apply()
+    }
+
     fun loadExams(): List<Exam> {
         val json = prefs.getString(KEY_EXAMS, null) ?: return emptyList()
         val type = object : TypeToken<List<Exam>>() {}.type

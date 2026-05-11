@@ -1,6 +1,8 @@
 package com.example.coursetable.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,11 +16,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,9 +35,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +45,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.coursetable.data.Course
@@ -45,13 +52,15 @@ import com.example.coursetable.data.CourseRepository
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TodayCourseScreen(
     repository: CourseRepository,
     maxWeek: Int,
     refreshTrigger: Int,
+    onCourseChanged: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val todayDayOfWeek = when (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
@@ -72,7 +81,11 @@ fun TodayCourseScreen(
     }
 
     val todayAbsolute = remember(refreshTrigger) { (calcWeek() - 1) * 7 + (todayDayOfWeek - 1) }
-    var absoluteDay by remember(refreshTrigger) { mutableIntStateOf(todayAbsolute) }
+    val totalPages = maxWeek * 7
+    val coroutineScope = rememberCoroutineScope()
+
+    val pagerState = rememberPagerState(initialPage = todayAbsolute.coerceIn(0, totalPages - 1)) { totalPages }
+    val absoluteDay = pagerState.currentPage
 
     val currentWeek = (absoluteDay / 7) + 1
     val selectedDay = (absoluteDay % 7) + 1
@@ -83,11 +96,6 @@ fun TodayCourseScreen(
         }
     }
 
-    val coursesForWeek = remember(currentWeek, refreshTrigger) { repository.getCoursesForWeek(currentWeek) }
-    val dayCourses = coursesForWeek
-        .filter { it.day == selectedDay }
-        .sortedBy { it.start }
-
     val courseTimes = remember { try { repository.loadCourseTimes() } catch (_: Exception) { emptyList() } }
 
     // Class reminder: check if any course today starts within 30 minutes
@@ -95,25 +103,28 @@ fun TodayCourseScreen(
     var reminderCourseName by remember { mutableStateOf("") }
     var reminderTimeText by remember { mutableStateOf("") }
 
+    // Course management states
+    var showAddDialog by remember { mutableStateOf(false) }
+    var editingCourse by remember { mutableStateOf<Course?>(null) }
+    var showDeleteConfirm by remember { mutableStateOf<Course?>(null) }
+
     LaunchedEffect(refreshTrigger) {
         try {
-            if (absoluteDay == todayAbsolute) {
-                val now = Calendar.getInstance()
-                val currentMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
-                val todayCourses = coursesForWeek.filter { it.day == todayDayOfWeek }
-                for (course in todayCourses) {
-                    val timeInfo = courseTimes.find { it.period == course.start }
-                    if (timeInfo != null && timeInfo.startTime.isNotEmpty()) {
-                        val parts = timeInfo.startTime.split(":")
-                        if (parts.size >= 2) {
-                            val courseMinutes = parts[0].toInt() * 60 + parts[1].toInt()
-                            val diff = courseMinutes - currentMinutes
-                            if (diff in 1..30) {
-                                reminderCourseName = course.name
-                                reminderTimeText = timeInfo.startTime
-                                showClassReminder = true
-                                break
-                            }
+            val now = Calendar.getInstance()
+            val currentMinutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+            val todayCourses = repository.getCoursesForWeek(calcWeek()).filter { it.day == todayDayOfWeek }
+            for (course in todayCourses) {
+                val timeInfo = courseTimes.find { it.period == course.start }
+                if (timeInfo != null && timeInfo.startTime.isNotEmpty()) {
+                    val parts = timeInfo.startTime.split(":")
+                    if (parts.size >= 2) {
+                        val courseMinutes = parts[0].toInt() * 60 + parts[1].toInt()
+                        val diff = courseMinutes - currentMinutes
+                        if (diff in 1..30) {
+                            reminderCourseName = course.name
+                            reminderTimeText = timeInfo.startTime
+                            showClassReminder = true
+                            break
                         }
                     }
                 }
@@ -133,20 +144,9 @@ fun TodayCourseScreen(
         else -> ""
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures { _, dragAmount ->
-                    if (dragAmount < -50 && absoluteDay < maxWeek * 7 - 1) {
-                        absoluteDay++ // 左滑→下一天
-                    } else if (dragAmount > 50 && absoluteDay > 0) {
-                        absoluteDay-- // 右滑→前一天
-                    }
-                }
-            }
-    ) {
-        // Header with day navigation
+    Box(modifier = modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -156,7 +156,11 @@ fun TodayCourseScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = { if (absoluteDay > 0) absoluteDay-- },
+                onClick = {
+                    if (pagerState.currentPage > 0) {
+                        coroutineScope.launch { pagerState.animateScrollToPage(pagerState.currentPage - 1) }
+                    }
+                },
                 modifier = Modifier.size(36.dp)
             ) {
                 Icon(
@@ -182,7 +186,11 @@ fun TodayCourseScreen(
             }
 
             IconButton(
-                onClick = { if (absoluteDay < maxWeek * 7 - 1) absoluteDay++ },
+                onClick = {
+                    if (pagerState.currentPage < totalPages - 1) {
+                        coroutineScope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) }
+                    }
+                },
                 modifier = Modifier.size(36.dp)
             ) {
                 Icon(
@@ -193,34 +201,123 @@ fun TodayCourseScreen(
             }
         }
 
-        if (dayCourses.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "${dayName}没有课，好好休息吧",
-                    fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                )
+        // Pager content
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+            val pageWeek = (page / 7) + 1
+            val pageDay = (page % 7) + 1
+            val pageCourses = try {
+                repository.getCoursesForWeek(pageWeek)
+                    .filter { it.day == pageDay }
+                    .sortedBy { it.start }
+            } catch (_: Exception) { emptyList() }
+
+            val pageDayName = when (pageDay) {
+                1 -> "周一"
+                2 -> "周二"
+                3 -> "周三"
+                4 -> "周四"
+                5 -> "周五"
+                6 -> "周六"
+                7 -> "周日"
+                else -> ""
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(dayCourses) { course ->
-                    val startTime = courseTimes.find { it.period == course.start }?.startTime
-                    val endTime = courseTimes.find { it.period == course.end }?.endTime
-                    val timeText = if (!startTime.isNullOrEmpty() && !endTime.isNullOrEmpty()) {
-                        "$startTime-$endTime"
-                    } else null
-                    TodayCourseCard(course = course, timeText = timeText)
+
+            if (pageCourses.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "${pageDayName}没有课，好好休息吧",
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(pageCourses) { course ->
+                        val startTime = courseTimes.find { it.period == course.start }?.startTime
+                        val endTime = courseTimes.find { it.period == course.end }?.endTime
+                        val timeText = if (!startTime.isNullOrEmpty() && !endTime.isNullOrEmpty()) {
+                            "$startTime-$endTime"
+                        } else null
+                        TodayCourseCard(
+                            course = course,
+                            timeText = timeText,
+                            onLongClick = { showDeleteConfirm = course },
+                            onClick = { editingCourse = course }
+                        )
+                    }
                 }
             }
         }
+    }
+
+    // FAB for adding course
+    FloatingActionButton(
+        onClick = { showAddDialog = true },
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .padding(16.dp)
+    ) {
+        Icon(Icons.Default.Add, contentDescription = "添加课程")
+    }
+    }
+
+    // Add Course Dialog
+    if (showAddDialog) {
+        AddEditCourseDialog(
+            onDismiss = { showAddDialog = false },
+            onConfirm = { course ->
+                repository.addCourse(course)
+                showAddDialog = false
+                onCourseChanged()
+            }
+        )
+    }
+
+    // Edit Course Dialog
+    if (editingCourse != null) {
+        AddEditCourseDialog(
+            existingCourse = editingCourse,
+            onDismiss = { editingCourse = null },
+            onConfirm = { course ->
+                repository.editCourse(course)
+                editingCourse = null
+                onCourseChanged()
+            }
+        )
+    }
+
+    // Delete Confirmation Dialog
+    if (showDeleteConfirm != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = null },
+            title = { Text("删除课程") },
+            text = { Text("确定要删除【${showDeleteConfirm!!.name}】吗？") },
+            confirmButton = {
+                TextButton(onClick = {
+                    repository.deleteCourse(showDeleteConfirm!!.id)
+                    showDeleteConfirm = null
+                    onCourseChanged()
+                }) {
+                    Text("删除", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = null }) {
+                    Text("取消")
+                }
+            }
+        )
     }
 
     // Class reminder dialog
@@ -243,8 +340,15 @@ fun TodayCourseScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun TodayCourseCard(course: Course, timeText: String?, modifier: Modifier = Modifier) {
+private fun TodayCourseCard(
+    course: Course,
+    timeText: String?,
+    onLongClick: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val courseColor = try {
         Color(android.graphics.Color.parseColor(course.color))
     } catch (e: Exception) {
@@ -256,6 +360,10 @@ private fun TodayCourseCard(course: Course, timeText: String?, modifier: Modifie
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
             .background(tintedBg)
             .padding(start = 0.dp, top = 16.dp, end = 16.dp, bottom = 16.dp),
         verticalAlignment = Alignment.CenterVertically

@@ -124,6 +124,7 @@ fun CourseTableScreen(repository: CourseRepository) {
                 repository = repository,
                 maxWeek = maxWeek,
                 refreshTrigger = refreshTrigger,
+                onCourseChanged = { refreshTrigger++ },
                 modifier = Modifier.weight(1f)
             )
             1 -> GradeScreen(

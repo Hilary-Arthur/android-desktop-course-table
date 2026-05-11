@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.coursetable"
         minSdk = 26
         targetSdk = 34
-        versionCode = 8
-        versionName = "4.2"
+        versionCode = 10
+        versionName = "5.2"
     }
 
     signingConfigs {
