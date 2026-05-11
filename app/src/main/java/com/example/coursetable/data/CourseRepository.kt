@@ -10,6 +10,7 @@ class CourseRepository(private val context: Context) {
     private val prefs = context.getSharedPreferences("course_prefs", Context.MODE_PRIVATE)
     private var allCourses: List<Course> = emptyList()
     private var courseTimes: List<CourseTime> = emptyList()
+    private var gradePointTable: Map<String, List<GradePointRange>>? = null
 
     fun getSchoolName(): String = BuildConfig.SCHOOL_NAME
 
@@ -122,6 +123,48 @@ class CourseRepository(private val context: Context) {
 
     fun setSemesterStart(dateMillis: Long) {
         prefs.edit().putLong(KEY_SEMESTER_START, dateMillis).apply()
+    }
+
+    fun loadGradePointTable(): Map<String, List<GradePointRange>> {
+        if (gradePointTable == null) {
+            try {
+                val inputStream = context.resources.openRawResource(
+                    context.resources.getIdentifier("grade_point", "raw", context.packageName)
+                )
+                val json = inputStream.bufferedReader().use { it.readText() }
+                val type = object : TypeToken<Map<String, GradePointConfig>>() {}.type
+                val config: Map<String, GradePointConfig> = gson.fromJson(json, type)
+                gradePointTable = config.mapValues { it.value.ranges }
+            } catch (_: Exception) {
+                gradePointTable = emptyMap()
+            }
+        }
+        return gradePointTable!!
+    }
+
+    fun getGradePointRanges(): List<GradePointRange> {
+        val table = loadGradePointTable()
+        return table[BuildConfig.SCHOOL_ID] ?: table["swu"] ?: emptyList()
+    }
+
+    fun calculateGradePoint(score: Int): Float {
+        val ranges = getGradePointRanges()
+        for (range in ranges) {
+            if (score >= range.min && score <= range.max) {
+                return range.gradePoint
+            }
+        }
+        return 0.0f
+    }
+
+    fun getGradeLevel(score: Int): String {
+        val ranges = getGradePointRanges()
+        for (range in ranges) {
+            if (score >= range.min && score <= range.max) {
+                return range.level
+            }
+        }
+        return "不及格"
     }
 
     fun loadGrades(): List<Grade> {

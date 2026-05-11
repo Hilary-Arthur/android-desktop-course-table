@@ -166,8 +166,10 @@ fun GradeScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(grades) { grade ->
+                        val level = remember(grade.score) { repository.getGradeLevel(grade.score) }
                         GradeCard(
                             grade = grade,
+                            level = level,
                             onDelete = {
                                 repository.deleteGrade(grade.id)
                                 grades = repository.loadGrades()
@@ -209,6 +211,7 @@ fun GradeScreen(
 @Composable
 private fun GradeCard(
     grade: Grade,
+    level: String,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -242,12 +245,19 @@ private fun GradeCard(
                     .background(gradePointColor.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = String.format("%.1f", grade.gradePoint),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = gradePointColor
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = String.format("%.1f", grade.gradePoint),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = gradePointColor
+                    )
+                    Text(
+                        text = level,
+                        fontSize = 10.sp,
+                        color = gradePointColor.copy(alpha = 0.8f)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -314,6 +324,18 @@ private fun AddGradeDialog(
     var scoreText by remember { mutableStateOf("") }
     var creditText by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
+    var previewGradePoint by remember { mutableStateOf<Float?>(null) }
+    var previewLevel by remember { mutableStateOf<String?>(null) }
+
+    // Update preview when score changes
+    val currentScore = scoreText.toIntOrNull()
+    if (currentScore != null && currentScore in 0..100) {
+        previewGradePoint = repository.calculateGradePoint(currentScore)
+        previewLevel = repository.getGradeLevel(currentScore)
+    } else {
+        previewGradePoint = null
+        previewLevel = null
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -374,6 +396,16 @@ private fun AddGradeDialog(
                     singleLine = true
                 )
 
+                // Preview grade point
+                if (previewGradePoint != null && previewLevel != null) {
+                    Text(
+                        text = "绩点：${String.format("%.1f", previewGradePoint)}（$previewLevel）",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+
                 OutlinedTextField(
                     value = creditText,
                     onValueChange = { creditText = it },
@@ -408,11 +440,12 @@ private fun AddGradeDialog(
                     return@TextButton
                 }
 
+                val gradePoint = repository.calculateGradePoint(score)
                 val grade = Grade(
                     courseName = selectedCourse,
                     score = score,
                     credit = credit,
-                    gradePoint = Grade.calculateGradePoint(score)
+                    gradePoint = gradePoint
                 )
                 onConfirm(grade)
             }) {

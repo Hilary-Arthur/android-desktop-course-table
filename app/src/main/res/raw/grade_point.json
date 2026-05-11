@@ -1,0 +1,34 @@
+{
+  "swu": {
+    "name": "西南大学绩点对照表",
+    "scale": "4.0",
+    "ranges": [
+      {"min": 90, "max": 100, "gradePoint": 4.0, "level": "优秀"},
+      {"min": 85, "max": 89, "gradePoint": 3.7, "level": "良好"},
+      {"min": 82, "max": 84, "gradePoint": 3.3, "level": "良好"},
+      {"min": 78, "max": 81, "gradePoint": 3.0, "level": "中等"},
+      {"min": 75, "max": 77, "gradePoint": 2.7, "level": "中等"},
+      {"min": 72, "max": 74, "gradePoint": 2.3, "level": "及格"},
+      {"min": 68, "max": 71, "gradePoint": 2.0, "level": "及格"},
+      {"min": 64, "max": 67, "gradePoint": 1.5, "level": "及格"},
+      {"min": 60, "max": 63, "gradePoint": 1.0, "level": "及格"},
+      {"min": 0, "max": 59, "gradePoint": 0.0, "level": "不及格"}
+    ]
+  },
+  "cqmu": {
+    "name": "重庆医科大学绩点对照表",
+    "scale": "4.0",
+    "ranges": [
+      {"min": 90, "max": 100, "gradePoint": 4.0, "level": "优秀"},
+      {"min": 86, "max": 89, "gradePoint": 3.7, "level": "良好"},
+      {"min": 83, "max": 85, "gradePoint": 3.3, "level": "良好"},
+      {"min": 80, "max": 82, "gradePoint": 3.0, "level": "中等"},
+      {"min": 76, "max": 79, "gradePoint": 2.7, "level": "中等"},
+      {"min": 73, "max": 75, "gradePoint": 2.3, "level": "及格"},
+      {"min": 70, "max": 72, "gradePoint": 2.0, "level": "及格"},
+      {"min": 66, "max": 69, "gradePoint": 1.5, "level": "及格"},
+      {"min": 60, "max": 65, "gradePoint": 1.0, "level": "及格"},
+      {"min": 0, "max": 59, "gradePoint": 0.0, "level": "不及格"}
+    ]
+  }
+}
