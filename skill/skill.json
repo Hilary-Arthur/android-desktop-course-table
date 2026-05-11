@@ -1,0 +1,96 @@
+{
+  "skill_name": "course-json-converter",
+  "description": "将课表截图/文本转换为课程表App可导入的标准JSON格式。适用于任何AI模型（ChatGPT、Claude、Gemini等），只需将课表截图或文本发给模型，并附上本规范即可。",
+  "trigger_words": ["课表转JSON", "课表JSON格式", "课程表JSON规范"],
+
+  "output_format": {
+    "type": "JSON数组",
+    "description": "每个元素代表一条课程记录"
+  },
+
+  "fields": [
+    {"name": "name",     "type": "string",  "required": true,  "description": "课程名称"},
+    {"name": "day",      "type": "integer", "required": true,  "description": "星期几。1=周一, 2=周二, 3=周三, 4=周四, 5=周五, 6=周六, 7=周日"},
+    {"name": "start",    "type": "integer", "required": true,  "description": "开始节次（第几节课开始）"},
+    {"name": "end",      "type": "integer", "required": true,  "description": "结束节次（第几节课结束）"},
+    {"name": "room",     "type": "string",  "required": false, "description": "教室/场地"},
+    {"name": "teacher",  "type": "string",  "required": false, "description": "教师姓名"},
+    {"name": "weeks",    "type": "string",  "required": true,  "description": "上课周次范围"},
+    {"name": "type",     "type": "string",  "required": false, "description": "课程类型：讲课 / 实验 / 实践，默认讲课"},
+    {"name": "color",    "type": "string",  "required": false, "description": "显示颜色（十六进制），不填则自动分配"}
+  ],
+
+  "weeks_formats": {
+    "连续周次":   {"example": "1-16",      "meaning": "第1周到第16周"},
+    "连续周次2":  {"example": "2-13",      "meaning": "第2周到第13周"},
+    "间断周次":   {"example": "1-9,11-16", "meaning": "第1-9周和第11-16周"},
+    "单数周":     {"example": "1-15(单)",  "meaning": "第1到第15周的单数周(1,3,5,7,9,11,13,15)"},
+    "双数周":     {"example": "2-14(双)",  "meaning": "第2到第14周的双数周(2,4,6,8,10,12,14)"},
+    "指定周":     {"example": "6,11",      "meaning": "仅第6周和第11周"},
+    "混合写法":   {"example": "1-2,4-7,9-14", "meaning": "混合写法"}
+  },
+
+  "color_palette": [
+    {"hex": "#4F46E5", "name": "靛蓝"},
+    {"hex": "#3B82F6", "name": "蓝色"},
+    {"hex": "#10B981", "name": "翠绿"},
+    {"hex": "#F59E0B", "name": "琥珀"},
+    {"hex": "#EF4444", "name": "红色"},
+    {"hex": "#8B5CF6", "name": "紫色"},
+    {"hex": "#EC4899", "name": "粉色"},
+    {"hex": "#14B8A6", "name": "青色"},
+    {"hex": "#F97316", "name": "橙色"},
+    {"hex": "#06B6D4", "name": "天蓝"},
+    {"hex": "#84CC16", "name": "黄绿"},
+    {"hex": "#6366F1", "name": "靛蓝浅"}
+  ],
+
+  "day_mapping": {
+    "周一": 1, "星期一": 1, "Monday": 1,
+    "周二": 2, "星期二": 2, "Tuesday": 2,
+    "周三": 3, "星期三": 3, "Wednesday": 3,
+    "周四": 4, "星期四": 4, "Thursday": 4,
+    "周五": 5, "星期五": 5, "Friday": 5,
+    "周六": 6, "星期六": 6, "Saturday": 6,
+    "周日": 7, "星期日": 7, "Sunday": 7
+  },
+
+  "course_type_keywords": {
+    "讲课": ["讲课", "理论", "授课"],
+    "实验": ["实验", "上机"],
+    "实践": ["实践", "实习", "设计", "示教"]
+  },
+
+  "conversion_rules": {
+    "period": "start和end是节次编号(1-18)，不是时间。如果学校一节大课占2个小节，如实填写起止节次",
+    "same_course_multiple_records": "同一门课在不同时间上课，应拆分为多条独立记录，name保持一致",
+    "color_assignment": "同一门课的所有记录使用相同颜色，讲课和实验可用同色系深浅区分"
+  },
+
+  "example": [
+    {"name": "移动应用开发", "day": 5, "start": 1, "end": 2, "room": "08-0501", "teacher": "毛顺兵", "weeks": "13", "type": "讲课", "color": "#4F46E5"},
+    {"name": "移动应用开发", "day": 5, "start": 3, "end": 4, "room": "08-0501", "teacher": "毛顺兵", "weeks": "1-9,11-16", "type": "讲课", "color": "#4F46E5"},
+    {"name": "移动应用开发", "day": 1, "start": 10, "end": 11, "room": "25-0603", "teacher": "毛顺兵", "weeks": "2-13", "type": "实验", "color": "#6366F1"},
+    {"name": "计算机网络", "day": 2, "start": 3, "end": 4, "room": "25-0701", "teacher": "于显平", "weeks": "2-13", "type": "实验", "color": "#3B82F6"},
+    {"name": "计算机网络", "day": 2, "start": 9, "end": 11, "room": "08-0406", "teacher": "于显平", "weeks": "1-16", "type": "讲课", "color": "#3B82F6"},
+    {"name": "数据库系统原理", "day": 4, "start": 3, "end": 4, "room": "25-0710", "teacher": "彭喜化", "weeks": "2-13", "type": "实验", "color": "#10B981"},
+    {"name": "数据库系统原理", "day": 1, "start": 7, "end": 9, "room": "27-0101", "teacher": "彭喜化", "weeks": "1-12", "type": "讲课", "color": "#10B981"},
+    {"name": "体育D(篮球)", "day": 2, "start": 7, "end": 8, "room": "第一运动场", "teacher": "体28", "weeks": "1-16", "type": "讲课", "color": "#14B8A6"},
+    {"name": "操作系统原理", "day": 3, "start": 7, "end": 9, "room": "08-0511", "teacher": "刘川", "weeks": "1-16", "type": "讲课", "color": "#F59E0B"},
+    {"name": "微机汇编与接口", "day": 2, "start": 12, "end": 14, "room": "25-0803", "teacher": "王茂忠", "weeks": "1-15(单)", "type": "实验", "color": "#8B5CF6"},
+    {"name": "微机汇编与接口", "day": 3, "start": 12, "end": 14, "room": "08-0602", "teacher": "王茂忠", "weeks": "1-12", "type": "讲课", "color": "#8B5CF6"},
+    {"name": "形势与政策", "day": 5, "start": 7, "end": 9, "room": "08-0609", "teacher": "霍锦玲", "weeks": "14", "type": "讲课", "color": "#EC4899"}
+  ],
+
+  "prompt_template": "请将这张课表截图转换为以下JSON格式。\n\n## 格式要求\n- 输出纯JSON数组，不要markdown代码块包裹\n- 每条记录包含：name(课程名), day(1-7,周一到周日), start(开始节次), end(结束节次), room(教室), teacher(教师), weeks(周次范围), type(讲课/实验/实践), color(十六进制颜色)\n- 同一门课不同时间段拆分为多条记录，name保持一致\n- 同一门课使用相同颜色\n- weeks格式示例：\"1-16\", \"2-13\", \"1-9,11-16\", \"1-15(单)\", \"6,11\"\n\n## 示例\n[\n  {\"name\":\"高等数学\",\"day\":1,\"start\":1,\"end\":2,\"room\":\"A3-1103\",\"teacher\":\"张三\",\"weeks\":\"1-16\",\"type\":\"讲课\",\"color\":\"#4F46E5\"},\n  {\"name\":\"高等数学\",\"day\":3,\"start\":3,\"end\":4,\"room\":\"A3-1103\",\"teacher\":\"张三\",\"weeks\":\"1-16\",\"type\":\"实验\",\"color\":\"#6366F1\"}\n]\n\n请直接输出JSON，不要任何其他文字。",
+
+  "validation_checklist": [
+    "JSON格式合法",
+    "所有day值在1-7范围内",
+    "所有start < end",
+    "weeks格式正确，无中文括号",
+    "同一门课的color一致",
+    "没有遗漏的课程",
+    "教室和教师信息准确"
+  ]
+}
