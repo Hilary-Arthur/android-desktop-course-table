@@ -11,14 +11,24 @@ android {
         applicationId = "com.example.coursetable"
         minSdk = 26
         targetSdk = 34
-        versionCode = 4
-        versionName = "3.5"
+        versionCode = 5
+        versionName = "3.6"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("../course-table.jks")
+            storePassword = "password123"
+            keyAlias = "course-table"
+            keyPassword = "password123"
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
