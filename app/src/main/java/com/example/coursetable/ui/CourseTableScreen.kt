@@ -54,6 +54,7 @@ fun CourseTableScreen(repository: CourseRepository) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .weight(1f)
                 .verticalScroll(rememberScrollState())
                 .horizontalScroll(rememberScrollState())
         ) {
@@ -140,5 +141,7 @@ fun CourseTableScreen(repository: CourseRepository) {
                 }
             }
         }
+
+        StatusBar(currentWeek = currentWeek)
     }
 }
