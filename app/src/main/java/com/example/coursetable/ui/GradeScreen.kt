@@ -1,6 +1,7 @@
 package com.example.coursetable.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,11 +18,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -189,6 +194,8 @@ fun GradeScreen(
     // Add Grade Dialog
     if (showAddDialog) {
         AddGradeDialog(
+            repository = repository,
+            existingGrades = grades,
             onDismiss = { showAddDialog = false },
             onConfirm = { grade ->
                 repository.saveGrade(grade)
@@ -286,10 +293,24 @@ private fun GradeCard(
 
 @Composable
 private fun AddGradeDialog(
+    repository: CourseRepository,
+    existingGrades: List<Grade>,
     onDismiss: () -> Unit,
     onConfirm: (Grade) -> Unit
 ) {
-    var courseName by remember { mutableStateOf("") }
+    // Get unique course names from current courses
+    val allCourses = remember { repository.loadCourses() }
+    val courseNames = remember(allCourses) {
+        allCourses.map { it.name }.distinct().sorted()
+    }
+    // Filter out courses that already have grades
+    val availableCourses = remember(courseNames, existingGrades) {
+        val gradedCourseNames = existingGrades.map { it.courseName }.toSet()
+        courseNames.filter { it !in gradedCourseNames }
+    }
+
+    var selectedCourse by remember { mutableStateOf("") }
+    var expanded by remember { mutableStateOf(false) }
     var scoreText by remember { mutableStateOf("") }
     var creditText by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
@@ -301,13 +322,49 @@ private fun AddGradeDialog(
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                OutlinedTextField(
-                    value = courseName,
-                    onValueChange = { courseName = it },
-                    label = { Text("课程名称") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
+                // Course selection dropdown
+                Box {
+                    OutlinedTextField(
+                        value = selectedCourse,
+                        onValueChange = {},
+                        label = { Text("选择课程") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { expanded = true },
+                        readOnly = true,
+                        trailingIcon = {
+                            IconButton(onClick = { expanded = true }) {
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = "展开")
+                            }
+                        }
+                    )
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 300.dp)
+                    ) {
+                        if (availableCourses.isEmpty()) {
+                            DropdownMenuItem(
+                                text = { Text("所有课程已添加成绩") },
+                                onClick = { expanded = false }
+                            )
+                        } else {
+                            availableCourses.forEach { courseName ->
+                                DropdownMenuItem(
+                                    text = { Text(courseName) },
+                                    onClick = {
+                                        selectedCourse = courseName
+                                        expanded = false
+                                        error = null
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
 
                 OutlinedTextField(
                     value = scoreText,
@@ -336,8 +393,8 @@ private fun AddGradeDialog(
         },
         confirmButton = {
             TextButton(onClick = {
-                if (courseName.isBlank()) {
-                    error = "请输入课程名称"
+                if (selectedCourse.isBlank()) {
+                    error = "请选择课程"
                     return@TextButton
                 }
                 val score = scoreText.toIntOrNull()
@@ -352,7 +409,7 @@ private fun AddGradeDialog(
                 }
 
                 val grade = Grade(
-                    courseName = courseName.trim(),
+                    courseName = selectedCourse,
                     score = score,
                     credit = credit,
                     gradePoint = Grade.calculateGradePoint(score)
