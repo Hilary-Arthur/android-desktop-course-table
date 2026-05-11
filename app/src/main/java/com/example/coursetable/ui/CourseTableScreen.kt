@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.EditCalendar
+import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
@@ -125,15 +126,19 @@ fun CourseTableScreen(repository: CourseRepository) {
                 refreshTrigger = refreshTrigger,
                 modifier = Modifier.weight(1f)
             )
-            1 -> SettingsScreen(
+            1 -> GradeScreen(
                 repository = repository,
-                modifier = Modifier.weight(1f),
-                onCoursesImported = { refreshTrigger++ },
-                onSemesterStartChanged = { refreshTrigger++ }
+                modifier = Modifier.weight(1f)
             )
             2 -> ExamScreen(
                 repository = repository,
                 modifier = Modifier.weight(1f)
+            )
+            3 -> SettingsScreen(
+                repository = repository,
+                modifier = Modifier.weight(1f),
+                onCoursesImported = { refreshTrigger++ },
+                onSemesterStartChanged = { refreshTrigger++ }
             )
         }
 
@@ -146,16 +151,22 @@ fun CourseTableScreen(repository: CourseRepository) {
                 label = { Text("今日课表") }
             )
             NavigationBarItem(
+                selected = selectedTab == 1,
+                onClick = { selectedTab = 1 },
+                icon = { Icon(Icons.Default.Grade, contentDescription = "成绩") },
+                label = { Text("成绩") }
+            )
+            NavigationBarItem(
                 selected = selectedTab == 2,
                 onClick = { selectedTab = 2 },
                 icon = { Icon(Icons.Default.EditCalendar, contentDescription = "考试信息") },
                 label = { Text("考试信息") }
             )
             NavigationBarItem(
-                selected = selectedTab == 1,
-                onClick = { selectedTab = 1 },
+                selected = selectedTab == 3,
+                onClick = { selectedTab = 3 },
                 icon = { Icon(Icons.Default.Settings, contentDescription = "个人设置") },
-                label = { Text("个人设置") }
+                label = { Text("设置") }
             )
         }
     }

@@ -17,18 +17,27 @@ class CourseRepository(private val context: Context) {
         if (allCourses.isEmpty()) {
             val importedJson = prefs.getString(KEY_IMPORTED_COURSES, null)
             if (importedJson != null) {
-                val type = object : TypeToken<List<Course>>() {}.type
-                allCourses = gson.fromJson(importedJson, type)
+                try {
+                    val type = object : TypeToken<List<Course>>() {}.type
+                    allCourses = gson.fromJson(importedJson, type)
+                } catch (_: Exception) {
+                    prefs.edit().remove(KEY_IMPORTED_COURSES).apply()
+                    allCourses = loadDefaultCourses()
+                }
             } else {
-                val inputStream = context.resources.openRawResource(
-                    context.resources.getIdentifier(BuildConfig.COURSE_FILE, "raw", context.packageName)
-                )
-                val json = inputStream.bufferedReader().use { it.readText() }
-                val type = object : TypeToken<List<Course>>() {}.type
-                allCourses = gson.fromJson(json, type)
+                allCourses = loadDefaultCourses()
             }
         }
         return allCourses
+    }
+
+    private fun loadDefaultCourses(): List<Course> {
+        val inputStream = context.resources.openRawResource(
+            context.resources.getIdentifier(BuildConfig.COURSE_FILE, "raw", context.packageName)
+        )
+        val json = inputStream.bufferedReader().use { it.readText() }
+        val type = object : TypeToken<List<Course>>() {}.type
+        return gson.fromJson(json, type)
     }
 
     fun loadCourseTimes(): List<CourseTime> {
@@ -55,6 +64,17 @@ class CourseRepository(private val context: Context) {
     fun saveImportedCourses(json: String): List<Course> {
         val type = object : TypeToken<List<Course>>() {}.type
         val courses: List<Course> = gson.fromJson(json, type)
+        require(courses.isNotEmpty()) { "课表数据为空" }
+        for (c in courses) {
+            require(c.name.isNotBlank()) { "存在课程名称为空" }
+            require(c.day in 1..7) { "星期值无效：${c.day}" }
+            require(c.start >= 1) { "起始节数无效：${c.start}" }
+            require(c.end >= c.start) { "结束节数小于起始节数" }
+            require(c.weeks.isNotBlank()) { "存在周数信息为空" }
+        }
+        // 先清除旧数据，再写入新数据，防止缓存导致重复
+        allCourses = emptyList()
+        prefs.edit().remove(KEY_IMPORTED_COURSES).apply()
         prefs.edit().putString(KEY_IMPORTED_COURSES, json).apply()
         allCourses = courses
         return courses
@@ -91,13 +111,40 @@ class CourseRepository(private val context: Context) {
         return if (millis > 0) millis else null
     }
 
+    fun getSemesterStartOrDefault(): Long {
+        return getSemesterStart() ?: run {
+            val cal = java.util.Calendar.getInstance()
+            cal.set(2026, 2, 2, 0, 0, 0) // 默认2026年3月2日
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            cal.timeInMillis
+        }
+    }
+
     fun setSemesterStart(dateMillis: Long) {
         prefs.edit().putLong(KEY_SEMESTER_START, dateMillis).apply()
+    }
+
+    fun loadGrades(): List<Grade> {
+        val json = prefs.getString(KEY_GRADES, null) ?: return emptyList()
+        val type = object : TypeToken<List<Grade>>() {}.type
+        return gson.fromJson(json, type)
+    }
+
+    fun saveGrade(grade: Grade) {
+        val grades = loadGrades().toMutableList()
+        grades.add(grade)
+        prefs.edit().putString(KEY_GRADES, gson.toJson(grades)).apply()
+    }
+
+    fun deleteGrade(id: Long) {
+        val grades = loadGrades().filter { it.id != id }
+        prefs.edit().putString(KEY_GRADES, gson.toJson(grades)).apply()
     }
 
     companion object {
         private const val KEY_IMPORTED_COURSES = "imported_courses"
         private const val KEY_EXAMS = "exams"
         private const val KEY_SEMESTER_START = "semester_start"
+        private const val KEY_GRADES = "grades"
     }
 }
