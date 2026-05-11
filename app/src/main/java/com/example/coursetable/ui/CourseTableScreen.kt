@@ -22,10 +22,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import com.example.coursetable.data.CourseRepository
-import com.example.coursetable.data.CourseTime
 import com.example.coursetable.util.WeekParser
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
@@ -38,19 +36,16 @@ fun CourseTableScreen(repository: CourseRepository) {
     val maxWeek = remember(allCourses) { WeekParser.getMaxWeek(allCourses) }
     var selectedTab by remember { mutableIntStateOf(0) }
 
-    // Reminders: only check once on first load
+    // Exam reminder: only check once on first load
     var showExamReminder by remember { mutableStateOf(false) }
     var examReminderText by remember { mutableStateOf("") }
-    var showCourseReminder by remember { mutableStateOf(false) }
-    var courseReminderText by remember { mutableStateOf("") }
-    var hasCheckedReminders by remember { mutableStateOf(false) }
+    var hasCheckedExamReminder by remember { mutableStateOf(false) }
 
-    LaunchedEffect(hasCheckedReminders) {
-        if (hasCheckedReminders) return@LaunchedEffect
-        hasCheckedReminders = true
+    LaunchedEffect(hasCheckedExamReminder) {
+        if (hasCheckedExamReminder) return@LaunchedEffect
+        hasCheckedExamReminder = true
 
         try {
-            // Exam reminder
             val exams = repository.loadExams()
             val today = LocalDate.now()
             val upcoming = mutableListOf<String>()
@@ -68,47 +63,6 @@ fun CourseTableScreen(repository: CourseRepository) {
             if (upcoming.isNotEmpty()) {
                 examReminderText = upcoming.joinToString("\n")
                 showExamReminder = true
-            }
-
-            // Course reminder: check if any course starts within 30 minutes
-            val courseTimes = repository.loadCourseTimes()
-            val todayCourses = repository.getCoursesForWeek(
-                run {
-                    val semesterStart = repository.getSemesterStart() ?: return@run 1
-                    val days = ((System.currentTimeMillis() - semesterStart) / (1000 * 60 * 60 * 24)).toInt()
-                    ((days / 7) + 1).coerceIn(1, maxWeek.coerceAtLeast(1))
-                }
-            ).filter {
-                it.day == when (LocalDate.now().dayOfWeek) {
-                    java.time.DayOfWeek.MONDAY -> 1
-                    java.time.DayOfWeek.TUESDAY -> 2
-                    java.time.DayOfWeek.WEDNESDAY -> 3
-                    java.time.DayOfWeek.THURSDAY -> 4
-                    java.time.DayOfWeek.FRIDAY -> 5
-                    java.time.DayOfWeek.SATURDAY -> 6
-                    java.time.DayOfWeek.SUNDAY -> 7
-                    else -> 0
-                }
-            }
-
-            val now = LocalTime.now()
-            val upcomingCourses = mutableListOf<String>()
-            for (course in todayCourses) {
-                val timeInfo = courseTimes.find { it.period == course.start }
-                if (timeInfo != null) {
-                    try {
-                        val startTime = LocalTime.parse(timeInfo.startTime, DateTimeFormatter.ofPattern("HH:mm"))
-                        val minutesUntil = java.time.Duration.between(now, startTime).toMinutes()
-                        // Remind if course starts within 30 minutes and hasn't started yet
-                        if (minutesUntil in 1..30) {
-                            upcomingCourses.add("${course.name}（${timeInfo.startTime}开始，还有${minutesUntil}分钟）")
-                        }
-                    } catch (_: Exception) {}
-                }
-            }
-            if (upcomingCourses.isNotEmpty()) {
-                courseReminderText = upcomingCourses.joinToString("\n")
-                showCourseReminder = true
             }
         } catch (_: Exception) {}
     }
@@ -176,22 +130,4 @@ fun CourseTableScreen(repository: CourseRepository) {
         )
     }
 
-    // Course reminder dialog
-    if (showCourseReminder) {
-        AlertDialog(
-            onDismissRequest = { showCourseReminder = false },
-            title = { Text("课程提醒") },
-            text = {
-                Text(
-                    "以下课程即将开始：\n\n$courseReminderText",
-                    fontSize = 16.sp
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = { showCourseReminder = false }) {
-                    Text("知道了")
-                }
-            }
-        )
-    }
 }
