@@ -22,6 +22,26 @@ android {
         }
     }
 
+    flavorDimensions += "school"
+    productFlavors {
+        create("swu") {
+            dimension = "school"
+            resValue("string", "app_name", "课程表（西大）")
+            resValue("string", "school_name", "西南大学")
+            buildConfigField("String", "SCHOOL_ID", "\"swu\"")
+            buildConfigField("String", "SCHOOL_NAME", "\"西南大学\"")
+            buildConfigField("String", "COURSE_FILE", "\"swu_course\"")
+        }
+        create("cqmu") {
+            dimension = "school"
+            resValue("string", "app_name", "课程表（重医）")
+            resValue("string", "school_name", "重庆医科大学")
+            buildConfigField("String", "SCHOOL_ID", "\"cqmu\"")
+            buildConfigField("String", "SCHOOL_NAME", "\"重庆医科大学\"")
+            buildConfigField("String", "COURSE_FILE", "\"cqmu_course\"")
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -33,6 +53,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     composeOptions {

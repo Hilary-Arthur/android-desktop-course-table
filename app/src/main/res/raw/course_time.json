@@ -1,0 +1,38 @@
+{
+  "swu": [
+    {"period": 1, "startTime": "08:00", "endTime": "08:45"},
+    {"period": 2, "startTime": "08:55", "endTime": "09:40"},
+    {"period": 3, "startTime": "10:00", "endTime": "10:45"},
+    {"period": 4, "startTime": "10:55", "endTime": "11:40"},
+    {"period": 5, "startTime": "12:10", "endTime": "12:55"},
+    {"period": 6, "startTime": "13:05", "endTime": "13:50"},
+    {"period": 7, "startTime": "14:00", "endTime": "14:45"},
+    {"period": 8, "startTime": "14:55", "endTime": "15:40"},
+    {"period": 9, "startTime": "15:50", "endTime": "16:35"},
+    {"period": 10, "startTime": "16:55", "endTime": "17:40"},
+    {"period": 11, "startTime": "17:50", "endTime": "18:35"},
+    {"period": 12, "startTime": "19:20", "endTime": "20:05"},
+    {"period": 13, "startTime": "20:15", "endTime": "21:00"},
+    {"period": 14, "startTime": "21:10", "endTime": "21:55"}
+  ],
+  "cqmu": [
+    {"period": 1, "startTime": "08:30", "endTime": "09:10"},
+    {"period": 2, "startTime": "09:20", "endTime": "10:00"},
+    {"period": 3, "startTime": "10:20", "endTime": "11:00"},
+    {"period": 4, "startTime": "11:10", "endTime": "11:50"},
+    {"period": 5, "startTime": "12:20", "endTime": "13:00"},
+    {"period": 6, "startTime": "13:10", "endTime": "13:50"},
+    {"period": 7, "startTime": "13:10", "endTime": "13:50"},
+    {"period": 8, "startTime": "14:00", "endTime": "14:40"},
+    {"period": 9, "startTime": "14:50", "endTime": "15:30"},
+    {"period": 10, "startTime": "15:50", "endTime": "16:30"},
+    {"period": 11, "startTime": "16:40", "endTime": "17:20"},
+    {"period": 12, "startTime": "17:30", "endTime": "18:10"},
+    {"period": 13, "startTime": "18:50", "endTime": "19:30"},
+    {"period": 14, "startTime": "19:40", "endTime": "20:20"},
+    {"period": 15, "startTime": "20:30", "endTime": "21:10"},
+    {"period": 16, "startTime": "21:20", "endTime": "22:00"},
+    {"period": 17, "startTime": "", "endTime": ""},
+    {"period": 18, "startTime": "", "endTime": ""}
+  ]
+}

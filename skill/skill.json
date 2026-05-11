@@ -68,18 +68,16 @@
   },
 
   "example": [
-    {"name": "移动应用开发", "day": 5, "start": 1, "end": 2, "room": "08-0501", "teacher": "毛顺兵", "weeks": "13", "type": "讲课", "color": "#4F46E5"},
-    {"name": "移动应用开发", "day": 5, "start": 3, "end": 4, "room": "08-0501", "teacher": "毛顺兵", "weeks": "1-9,11-16", "type": "讲课", "color": "#4F46E5"},
-    {"name": "移动应用开发", "day": 1, "start": 10, "end": 11, "room": "25-0603", "teacher": "毛顺兵", "weeks": "2-13", "type": "实验", "color": "#6366F1"},
-    {"name": "计算机网络", "day": 2, "start": 3, "end": 4, "room": "25-0701", "teacher": "于显平", "weeks": "2-13", "type": "实验", "color": "#3B82F6"},
-    {"name": "计算机网络", "day": 2, "start": 9, "end": 11, "room": "08-0406", "teacher": "于显平", "weeks": "1-16", "type": "讲课", "color": "#3B82F6"},
-    {"name": "数据库系统原理", "day": 4, "start": 3, "end": 4, "room": "25-0710", "teacher": "彭喜化", "weeks": "2-13", "type": "实验", "color": "#10B981"},
-    {"name": "数据库系统原理", "day": 1, "start": 7, "end": 9, "room": "27-0101", "teacher": "彭喜化", "weeks": "1-12", "type": "讲课", "color": "#10B981"},
-    {"name": "体育D(篮球)", "day": 2, "start": 7, "end": 8, "room": "第一运动场", "teacher": "体28", "weeks": "1-16", "type": "讲课", "color": "#14B8A6"},
-    {"name": "操作系统原理", "day": 3, "start": 7, "end": 9, "room": "08-0511", "teacher": "刘川", "weeks": "1-16", "type": "讲课", "color": "#F59E0B"},
-    {"name": "微机汇编与接口", "day": 2, "start": 12, "end": 14, "room": "25-0803", "teacher": "王茂忠", "weeks": "1-15(单)", "type": "实验", "color": "#8B5CF6"},
-    {"name": "微机汇编与接口", "day": 3, "start": 12, "end": 14, "room": "08-0602", "teacher": "王茂忠", "weeks": "1-12", "type": "讲课", "color": "#8B5CF6"},
-    {"name": "形势与政策", "day": 5, "start": 7, "end": 9, "room": "08-0609", "teacher": "霍锦玲", "weeks": "14", "type": "讲课", "color": "#EC4899"}
+    {"name": "高等数学", "day": 1, "start": 1, "end": 2, "room": "A3-1103", "teacher": "张三", "weeks": "1-16", "type": "讲课", "color": "#4F46E5"},
+    {"name": "高等数学", "day": 3, "start": 3, "end": 4, "room": "A3-1103", "teacher": "张三", "weeks": "1-16", "type": "讲课", "color": "#4F46E5"},
+    {"name": "大学英语", "day": 2, "start": 1, "end": 2, "room": "B2-205", "teacher": "李四", "weeks": "1-16", "type": "讲课", "color": "#3B82F6"},
+    {"name": "大学英语", "day": 4, "start": 1, "end": 2, "room": "B2-205", "teacher": "李四", "weeks": "1-16", "type": "讲课", "color": "#3B82F6"},
+    {"name": "程序设计基础", "day": 2, "start": 3, "end": 4, "room": "C1-301", "teacher": "王五", "weeks": "1-16", "type": "讲课", "color": "#10B981"},
+    {"name": "程序设计基础", "day": 4, "start": 3, "end": 4, "room": "C1-301", "teacher": "王五", "weeks": "1-16", "type": "讲课", "color": "#10B981"},
+    {"name": "程序设计基础实验", "day": 5, "start": 3, "end": 4, "room": "D4-机房02", "teacher": "王五", "weeks": "2-15", "type": "实验", "color": "#10B981"},
+    {"name": "体育", "day": 3, "start": 7, "end": 8, "room": "体育馆", "teacher": "赵六", "weeks": "1-16", "type": "讲课", "color": "#14B8A6"},
+    {"name": "思想道德与法治", "day": 1, "start": 7, "end": 9, "room": "A1-101", "teacher": "孙七", "weeks": "1-12", "type": "讲课", "color": "#F59E0B"},
+    {"name": "军事理论", "day": 5, "start": 7, "end": 9, "room": "A1-101", "teacher": "周八", "weeks": "1-8", "type": "讲课", "color": "#8B5CF6"}
   ],
 
   "prompt_template": "请将这张课表截图转换为以下JSON格式。\n\n## 格式要求\n- 输出纯JSON数组，不要markdown代码块包裹\n- 每条记录包含：name(课程名), day(1-7,周一到周日), start(开始节次), end(结束节次), room(教室), teacher(教师), weeks(周次范围), type(讲课/实验/实践), color(十六进制颜色)\n- 同一门课不同时间段拆分为多条记录，name保持一致\n- 同一门课使用相同颜色\n- weeks格式示例：\"1-16\", \"2-13\", \"1-9,11-16\", \"1-15(单)\", \"6,11\"\n\n## 示例\n[\n  {\"name\":\"高等数学\",\"day\":1,\"start\":1,\"end\":2,\"room\":\"A3-1103\",\"teacher\":\"张三\",\"weeks\":\"1-16\",\"type\":\"讲课\",\"color\":\"#4F46E5\"},\n  {\"name\":\"高等数学\",\"day\":3,\"start\":3,\"end\":4,\"room\":\"A3-1103\",\"teacher\":\"张三\",\"weeks\":\"1-16\",\"type\":\"实验\",\"color\":\"#6366F1\"}\n]\n\n请直接输出JSON，不要任何其他文字。",
