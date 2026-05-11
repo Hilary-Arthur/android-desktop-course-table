@@ -17,17 +17,18 @@
   },
   "cqmu": {
     "name": "重庆医科大学绩点对照表",
-    "scale": "4.0",
+    "scale": "5.0",
+    "formula": "GPA = Σ(课程学分 × 课程绩点系数) / Σ课程学分",
+    "notes": [
+      "补考成绩按60分处理，最高绩点系数为1.0",
+      "重修成绩按实际成绩计算",
+      "期末考试、补考、重修成绩取最高者"
+    ],
     "ranges": [
-      {"min": 90, "max": 100, "gradePoint": 4.0, "level": "优秀"},
-      {"min": 86, "max": 89, "gradePoint": 3.7, "level": "良好"},
-      {"min": 83, "max": 85, "gradePoint": 3.3, "level": "良好"},
-      {"min": 80, "max": 82, "gradePoint": 3.0, "level": "中等"},
-      {"min": 76, "max": 79, "gradePoint": 2.7, "level": "中等"},
-      {"min": 73, "max": 75, "gradePoint": 2.3, "level": "及格"},
-      {"min": 70, "max": 72, "gradePoint": 2.0, "level": "及格"},
-      {"min": 66, "max": 69, "gradePoint": 1.5, "level": "及格"},
-      {"min": 60, "max": 65, "gradePoint": 1.0, "level": "及格"},
+      {"min": 90, "max": 100, "gradePoint": 4.5, "level": "优秀"},
+      {"min": 80, "max": 89, "gradePoint": 3.5, "level": "良好"},
+      {"min": 70, "max": 79, "gradePoint": 2.5, "level": "中等"},
+      {"min": 60, "max": 69, "gradePoint": 1.5, "level": "及格"},
       {"min": 0, "max": 59, "gradePoint": 0.0, "level": "不及格"}
     ]
   }
