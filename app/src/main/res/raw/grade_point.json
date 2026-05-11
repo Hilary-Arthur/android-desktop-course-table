@@ -41,11 +41,23 @@
       "期末考试、补考、重修成绩取最高者"
     ],
     "ranges": [
-      {"min": 90, "max": 100, "gradePoint": 4.5, "level": "优秀"},
-      {"min": 80, "max": 89, "gradePoint": 3.5, "level": "良好"},
-      {"min": 70, "max": 79, "gradePoint": 2.5, "level": "中等"},
-      {"min": 60, "max": 69, "gradePoint": 1.5, "level": "及格"},
-      {"min": 0, "max": 59, "gradePoint": 0.0, "level": "不及格"}
+      {"min": 99, "max": 100, "gradePoint": 5.0, "level": "A/优"},
+      {"min": 96, "max": 98, "gradePoint": 4.8, "level": "A/优"},
+      {"min": 93, "max": 95, "gradePoint": 4.6, "level": "A/优"},
+      {"min": 90, "max": 92, "gradePoint": 4.3, "level": "A/优"},
+      {"min": 87, "max": 89, "gradePoint": 4.0, "level": "B/良"},
+      {"min": 84, "max": 86, "gradePoint": 3.6, "level": "B/良"},
+      {"min": 81, "max": 83, "gradePoint": 3.3, "level": "B/良"},
+      {"min": 78, "max": 80, "gradePoint": 3.0, "level": "C/中"},
+      {"min": 75, "max": 77, "gradePoint": 2.6, "level": "C/中"},
+      {"min": 72, "max": 74, "gradePoint": 2.3, "level": "C/中"},
+      {"min": 69, "max": 71, "gradePoint": 2.0, "level": "D/及格"},
+      {"min": 67, "max": 68, "gradePoint": 1.8, "level": "D/及格"},
+      {"min": 65, "max": 66, "gradePoint": 1.6, "level": "D/及格"},
+      {"min": 63, "max": 64, "gradePoint": 1.4, "level": "D/及格"},
+      {"min": 61, "max": 62, "gradePoint": 1.2, "level": "D/及格"},
+      {"min": 60, "max": 60, "gradePoint": 1.0, "level": "D/及格"},
+      {"min": 0, "max": 59, "gradePoint": 0.0, "level": "E/不及格"}
     ]
   }
 }
